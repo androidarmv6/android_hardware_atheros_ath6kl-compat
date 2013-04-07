@@ -32,6 +32,37 @@
 #include "hif-ops.h"
 #include "htc-ops.h"
 
+static unsigned int samsung_firmware;
+module_param(samsung_firmware, uint, 0644);
+
+static const struct ath6kl_hw hw_list_samsung[] = {
+	{
+		.id				= AR6003_HW_2_0_VERSION,
+		.name				= "ar6003 hw 2.0",
+		.dataset_patch_addr		= 0x57e908,
+		.app_load_addr			= 0x543800,
+		.board_ext_data_addr		= 0x57e600,
+		.reserved_ram_size		= 6912,
+		.refclk_hz			= 26000000,
+		.uarttx_pin			= 8,
+		.flags				= ATH6KL_HW_SDIO_CRC_ERROR_WAR,
+
+		/* hw2.0 needs override address hardcoded */
+		.app_start_override_addr	= 0x945000,
+
+		.fw = {
+			.dir		= AR6003_HW_2_0_FW_DIR,
+			.otp		= "samsung_"AR6003_HW_2_0_OTP_FILE,
+			.fw		= "samsung_"AR6003_HW_2_0_FIRMWARE_FILE,
+			.tcmd		= "samsung_"AR6003_HW_2_0_TCMD_FIRMWARE_FILE,
+			.patch		= "samsung_"AR6003_HW_2_0_PATCH_FILE,
+		},
+
+		.fw_board		= AR6003_HW_2_0_BOARD_DATA_FILE,
+		.fw_default_board	= AR6003_HW_2_0_DEFAULT_BOARD_DATA_FILE,
+	},
+};
+
 static const struct ath6kl_hw hw_list[] = {
 	{
 		.id				= AR6003_HW_2_0_VERSION,
@@ -1507,17 +1538,32 @@ int ath6kl_init_hw_params(struct ath6kl *ar)
 	const struct ath6kl_hw *uninitialized_var(hw);
 	int i;
 
-	for (i = 0; i < ARRAY_SIZE(hw_list); i++) {
-		hw = &hw_list[i];
+	if (samsung_firmware == 1) {
+		for (i = 0; i < ARRAY_SIZE(hw_list_samsung); i++) {
+			hw = &hw_list_samsung[i];
 
-		if (hw->id == ar->version.target_ver)
-			break;
-	}
+			if (hw->id == ar->version.target_ver)
+				break;
+		}
 
-	if (i == ARRAY_SIZE(hw_list)) {
-		ath6kl_err("Unsupported hardware version: 0x%x\n",
-			   ar->version.target_ver);
-		return -EINVAL;
+		if (i == ARRAY_SIZE(hw_list_samsung)) {
+			ath6kl_err("Unsupported hardware version: 0x%x\n",
+				   ar->version.target_ver);
+			return -EINVAL;
+		}
+	} else {
+		for (i = 0; i < ARRAY_SIZE(hw_list); i++) {
+			hw = &hw_list[i];
+
+			if (hw->id == ar->version.target_ver)
+				break;
+		}
+
+		if (i == ARRAY_SIZE(hw_list)) {
+			ath6kl_err("Unsupported hardware version: 0x%x\n",
+				   ar->version.target_ver);
+			return -EINVAL;
+		}
 	}
 
 	ar->hw = *hw;
