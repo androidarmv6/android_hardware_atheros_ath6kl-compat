@@ -29,6 +29,8 @@
 #include "debug.h"
 #include "cfg80211.h"
 
+extern void wlan_setup_power(int on);
+
 struct ath6kl_sdio {
 	struct sdio_func *func;
 
@@ -1422,6 +1424,7 @@ static int __init ath6kl_sdio_init(void)
 {
 	int ret;
 
+	wlan_setup_power(1);
 	ret = sdio_register_driver(&ath6kl_sdio_driver);
 	if (ret)
 		ath6kl_err("sdio driver registration failed: %d\n", ret);
@@ -1432,6 +1435,7 @@ static int __init ath6kl_sdio_init(void)
 static void __exit ath6kl_sdio_exit(void)
 {
 	sdio_unregister_driver(&ath6kl_sdio_driver);
+	wlan_setup_power(0);
 }
 
 module_init(ath6kl_sdio_init);
