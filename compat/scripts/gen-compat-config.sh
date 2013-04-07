@@ -75,7 +75,8 @@ if [[ ${CONFIG_COMPAT_KERNEL_3_5} = "y" ]]; then
 	#	- init and change callback ops use a different argument dataype
 	# 	- you need to parse data received from userspace differently
 	if [[ ${CONFIG_COMPAT_KERNEL_2_6_25} != "y" ]]; then
-		echo "export CONFIG_COMPAT_NET_SCH_CODEL=m"
-		echo "export CONFIG_COMPAT_NET_SCH_FQ_CODEL=m"
+		#echo "export CONFIG_COMPAT_NET_SCH_CODEL=m"
+		#echo "export CONFIG_COMPAT_NET_SCH_FQ_CODEL=m"
+		echo -n
 	fi
 fi
