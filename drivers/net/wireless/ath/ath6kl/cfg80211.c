@@ -933,8 +933,11 @@ static int ath6kl_set_probed_ssids(struct ath6kl *ar,
 		else
 			ssid_list[i].flag = ANY_SSID_FLAG;
 
+#if 0
+		// this seems to be breaking hidden SSIDs
 		if (n_match_ssid == 0)
 			ssid_list[i].flag |= MATCH_SSID_FLAG;
+#endif
 	}
 
 	index_to_add = i;
