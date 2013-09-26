@@ -24,6 +24,8 @@
 #include "../regd.h"
 #include "../regd_common.h"
 
+static int ath6kl_wmi_proc_events_vif(struct wmi *wmi, u16 if_idx, u16 cmd_id,
+					u8 *datap, u32 len);
 static int ath6kl_wmi_sync_point(struct wmi *wmi, u8 if_idx);
 
 static const s32 wmi_rate_tbl[][2] = {
@@ -1815,6 +1817,15 @@ int ath6kl_wmi_cmd_send(struct wmi *wmi, u8 if_idx, struct sk_buff *skb,
 		 * execute. Establish a new sync point.
 		 */
 		ath6kl_wmi_sync_point(wmi, if_idx);
+	}
+
+	if (cmd_id == WMI_SET_HOST_SLEEP_MODE_CMDID){
+		ath6kl_dbg(ATH6KL_DBG_WMI, "****************WMI_SET_HOST_SLEEP_MODE_CMDID workaround***********************");
+		ret = ath6kl_wmi_proc_events_vif(wmi, (u16)if_idx, WMI_SET_HOST_SLEEP_MODE_CMD_PROCESSED_EVENTID, NULL, 0);
+		if(ret)
+			return ret;
+		else
+			ath6kl_dbg(ATH6KL_DBG_WMI, "****************Flag forced***********************");
 	}
 
 	return 0;
