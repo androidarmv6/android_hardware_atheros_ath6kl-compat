@@ -170,9 +170,9 @@ enum ath6kl_hw_flags {
 #define AR6003_HW_2_0_FIRMWARE_FILE		"athwlan.bin.z77"
 #define AR6003_HW_2_0_TCMD_FIRMWARE_FILE	"athtcmd_ram.bin"
 #define AR6003_HW_2_0_PATCH_FILE		"data.patch.bin"
-#define AR6003_HW_2_0_BOARD_DATA_FILE AR6003_HW_2_0_FW_DIR "/bdata.bin"
+#define AR6003_HW_2_0_BOARD_DATA_FILE AR6003_HW_2_0_FW_DIR "/bdata.SD31.bin"
 #define AR6003_HW_2_0_DEFAULT_BOARD_DATA_FILE \
-			AR6003_HW_2_0_FW_DIR "/bdata.SD31.bin"
+			AR6003_HW_2_0_FW_DIR "/bdata.bin"
 
 /* AR6003 3.0 definitions */
 #define AR6003_HW_2_1_1_VERSION                 0x30000582
