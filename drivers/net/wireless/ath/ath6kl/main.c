@@ -1319,7 +1319,8 @@ void init_netdev(struct net_device *dev)
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,39))
 	dev->hw_features |= NETIF_F_IP_CSUM | NETIF_F_RXCSUM;
 #else
-	dev->features |= NETIF_F_IP_CSUM;
+	/* seems to cause networking failure on 2.6.35 kernel - disable
+	dev->features |= NETIF_F_IP_CSUM; */
 #endif
 
 	return;
