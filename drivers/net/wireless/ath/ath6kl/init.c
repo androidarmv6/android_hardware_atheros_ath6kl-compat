@@ -735,8 +735,9 @@ static bool check_device_tree(struct ath6kl *ar)
 
 static int ath6kl_fetch_board_file(struct ath6kl *ar)
 {
-	const char *filename;
-	int ret;
+	extern unsigned int system_rev;
+	char filename[100];
+	int i, ret;
 
 	if (ar->fw_board != NULL)
 		return 0;
@@ -744,13 +745,31 @@ static int ath6kl_fetch_board_file(struct ath6kl *ar)
 	if (WARN_ON(ar->hw.fw_board == NULL))
 		return -EINVAL;
 
-	filename = ar->hw.fw_board;
+	ath6kl_info("system_rev: %02d\n", system_rev);
 
-	ret = ath6kl_get_fw(ar, filename, &ar->fw_board,
-			    &ar->fw_board_len);
-	if (ret == 0) {
-		/* managed to get proper board file */
-		return 0;
+	/* attempt to find board data matching system revision */
+	for (i = system_rev; i >= 0; i--) {
+		if (i == 0) {
+			/* don't append ".00" for null revision */
+			snprintf(filename, sizeof(filename), "%s",
+				 ar->hw.fw_board);
+		} else {
+			snprintf(filename, sizeof(filename), "%s.%02d",
+				 ar->hw.fw_board, i);
+		}
+
+		ret = ath6kl_get_fw(ar, filename, &ar->fw_board,
+				    &ar->fw_board_len);
+		if (ret == 0) {
+			/* managed to get proper board file */
+			ath6kl_info("Using board file: %s\n", filename);
+			return 0;
+		}
+
+		if (i != 0) {
+			ath6kl_warn("Failed to get board file %s (%d), trying lower system_rev.\n",
+				    filename, ret);
+		}
 	}
 
 	if (check_device_tree(ar)) {
@@ -762,7 +781,8 @@ static int ath6kl_fetch_board_file(struct ath6kl *ar)
 	ath6kl_warn("Failed to get board file %s (%d), trying to find default board file.\n",
 		    filename, ret);
 
-	filename = ar->hw.fw_default_board;
+	snprintf(filename, sizeof(filename), "%s",
+		 ar->hw.fw_default_board);
 
 	ret = ath6kl_get_fw(ar, filename, &ar->fw_board,
 			    &ar->fw_board_len);
